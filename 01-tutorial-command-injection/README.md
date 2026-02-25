@@ -252,6 +252,8 @@ To apply the fix, we do the following:
    +   )
    ```
 
+1. Build the container image with the updated `vuln_code.py` file.
+
 1. Start the container.
 
 1. Verify the new file by running the `verify_fix.sh` script inside the container.

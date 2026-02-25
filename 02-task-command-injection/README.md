@@ -180,11 +180,13 @@ Follow the **Audit → Identify → Validate → Fix → Test** cycle:
 1. **Audit** – Read `vuln_code.py`.
    Understand what it does.
 1. **Identify** – Find the security flaw. Which line is dangerous and why?
-1. **Validate** – Start the container.
+1. **Validate** – Build the container image.
+   Start the container.
    Inside the container run the `exploit.sh` script to confirm the vulnerability exists.
    Exit the container.
 1. **Fix** – Edit `vuln_code.py` to eliminate the flaw.
 1. **Test** – Start the container.
+   Build the container image.
    Inside the container run the `verify_fix.sh` script to confirm the vulnerability is now removed.
    Exit the container.
 
