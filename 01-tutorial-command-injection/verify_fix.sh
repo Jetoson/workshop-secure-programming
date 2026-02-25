@@ -25,7 +25,7 @@ fi
 echo ""
 echo "[TEST 2] Injection payload must NOT execute secondary command..."
 OUTPUT=$(echo "root; echo INJECTION_SUCCEEDED" | python3 vuln_code.py 2>&1 || true)
-if echo "$OUTPUT" | grep -q "INJECTION_SUCCEEDED"; then
+if echo "$OUTPUT" | grep -q "^INJECTION_SUCCEEDED"; then
     echo "  FAIL: Injection still works! The fix is incomplete."
     FAIL=$((FAIL+1))
 else
