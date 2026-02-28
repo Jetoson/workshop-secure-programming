@@ -15,7 +15,7 @@ void greet_user(void)
 	printf("What is your name? ");
 	fflush(stdout);
 
-	fgets(buffer, 192, stdin);      /* UNSAFE: reads past buffer size - no bounds check! */
+	fgets(buffer, 128, stdin);      /* UNSAFE: reads past buffer size - no bounds check! */
 
 	printf("Hello, %s!\n", buffer);
 }
