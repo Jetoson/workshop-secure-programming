@@ -68,7 +68,7 @@ The script asks for a username and shows information about the user.
 ## Validating and Testing the Vulnerability
 
 To validate and test the vulnerability, follow the steps below.
-You will also follow the steps after you do the fix (see also the `Your Tasks` section below):
+You will also follow the steps after you do the fix (see also the `Action Points` section below):
 
 1. Start the container:
 
@@ -232,7 +232,7 @@ To automate the process of validating and testing the vulnerability, we have two
    As you can see, the `exploit.sh` script automates the passing the exploit payload (`root ; cat /etc/passwd`).
    So we inject the `cat /etc/passwd` command to the Python script and cause the contents of the `/etc/passwd` file to be shown.
 
-1. Inside the container, use the `verify_sh.sh` script to test the issue:
+1. Inside the container, use the `verify_fix.sh` script to test the issue:
 
    ```console
    root@45df6e3bc5da:/app# ./verify_fix.sh
