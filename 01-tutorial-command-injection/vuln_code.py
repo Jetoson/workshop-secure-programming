@@ -8,14 +8,15 @@ Audit: Read this code carefully. Can you spot the security flaw?
 """
 
 import os
-
+import subprocess
 
 def get_user(user):
     """Get informataion about a user."""
-    command = "id " + user
-    print(f"[*] Running: {command}")
-    os.system(command)
-
+    result = subprocess.run(
+          ["id", user],
+          capture_output=True,
+          text=True,
+    )
 
 if __name__ == "__main__":
     user = input("Enter username: ")
