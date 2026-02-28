@@ -18,7 +18,11 @@ static void show_balance(void)
 
 static void transfer(int amount)
 {
-	/* BUG: 'amount' can be negative — the check still passes! */
+	 if (amount <= 0) {
+                printf("[-] Invalid amount: must be a positive number.\n");
+                return;
+        }
+		
 	if (balance >= amount) {
 		balance -= amount;
 		printf("[+] Transferred %d coins. New balance: %d\n", amount, balance);
