@@ -8,11 +8,13 @@ Audit: Read this code carefully. Can you spot the security flaw?
 
 An API client that connects to a remote service.
 """
+import os
 
-# WARNING: Never do this in real code!
-API_KEY = "sk_live_SUPER_SECRET_12345ABCDE"
 API_ENDPOINT = "https://api.example.com/data"
 
+API_KEY = os.getenv("API_KEY")
+if not API_KEY:
+    raise EnvironmentError("API_KEY environment variable is not set!")
 
 def call_api():
     """Simulate an authenticated API call."""
