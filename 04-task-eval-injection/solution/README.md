@@ -21,9 +21,9 @@ if (!SAFE_MATH_PATTERN.test(input)) {
 const result = Function('"use strict"; return (' + input + ')')();
 ```
 
-1. **Regex whitelist** — accepts only characters that can appear in arithmetic.
+1. **Regex whitelist** - accepts only characters that can appear in arithmetic.
    Letters, backticks, brackets, semicolons, etc. are all rejected before evaluation.
-2. **`Function()` instead of `eval()`** — runs in a separate scope (no access to local variables), adding defence-in-depth.
+1. **`Function()` instead of `eval()`** - runs in a separate scope (no access to local variables), adding defence-in-depth.
 
 ## Key Principle
 
