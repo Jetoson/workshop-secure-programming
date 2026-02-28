@@ -10,6 +10,7 @@
  */
 
 const readline = require('readline');
+const SAFE_MATH = /^[\d\s+\-*/.()]+$/;
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -19,8 +20,13 @@ const rl = readline.createInterface({
 
 rl.question('Enter a math expression (e.g. 2+2): ', (input) => {
     try {
-        // BUG: eval() executes ANY JavaScript, not just math!
-        const result = eval(input);
+        if (!SAFE_MATH.test(input.trim())) {
+            console.error('Error: only numeric expressions are allowed.');
+            process.exit(1);
+        }
+
+        // Only reach here if input is safe
+        const result = Function('"use strict"; return (' + input + ')')();
         console.log(`Result: ${result}`);
     } catch (err) {
         console.error(`Error: ${err.message}`);
