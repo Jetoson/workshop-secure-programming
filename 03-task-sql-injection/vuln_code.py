@@ -22,16 +22,14 @@ def setup_db(conn):
     conn.execute("INSERT OR IGNORE INTO users (name, password) VALUES ('bob',   'hunter2')")
     conn.commit()
 
-
 def login(conn, username, password):
     """Check credentials against the database."""
-    # BUG: Direct string interpolation — never do this!
-    query = f"SELECT * FROM users WHERE name='{username}' AND password='{password}'"
-    print(f"[*] Running query: {query}")
-    cursor = conn.execute(query)
+    cursor = conn.execute(
+    "SELECT * FROM users WHERE name=? AND password=?",
+    (username, password)
+   )
     row = cursor.fetchone()
     return row is not None
-
 
 if __name__ == "__main__":
     conn = sqlite3.connect(":memory:")
