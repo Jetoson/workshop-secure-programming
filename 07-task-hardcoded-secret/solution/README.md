@@ -1,4 +1,4 @@
-# Exercise 07 – Solution: Hardcoded Secret
+# Exercise 07 - Solution: Hardcoded Secret
 
 ## The Flaw
 

@@ -86,10 +86,43 @@ You will also follow the steps after you do the fix (see also the `Your Tasks` s
    root@45df6e3bc5da:/app#
    ```
 
-1. Validate the issue using the `exploit.sh` script inside the container:
+1. Run the `vuln_code.py` program:
 
    ```console
-   root@2a4db176d366:/app# ./exploit.sh
+   root@45df6e3bc5da:/app# python vuln_code.py
+   [*] Connecting to https://api.example.com/data
+   [*] Authenticating with key: sk_live_SUPER_SECRET_12345ABCDE
+   [+] API call successful! Data received.
+   ```
+
+1. You can see the program ran successfully with an API key.
+   However, the API key is hardcoded in the program.
+   We can see it part of the code
+
+   ```console
+   root@57ca2e8e74c0:/app# grep 'API_KEY' vuln_code.py
+   API_KEY = "sk_live_SUPER_SECRET_12345ABCDE"
+       print(f"[*] Authenticating with key: {API_KEY}")
+       # response = requests.get(API_ENDPOINT, headers={"Authorization": f"Bearer {API_KEY}"})
+   ```
+
+   This is bad.
+   This means that anyone who has access to the code, or the repository where the code is stored, will know my API key, which should be a secret.
+
+   Programs code must not store secrets.
+   Secrets must be passed from the outside world to the program, only during runtime.
+   Otherwise, anyone with access to the program code will know the secrets.
+
+Keep the container running for the automation steps below.
+
+## Automate the Validating and Testing of the Vulnerability
+
+To automate the process of validating and testing the vulnerability, we have two scripts to use: `exploit.sh` and `verify_fix.sh`.
+
+1. Inside the container, use the `exploit.sh` script to validate the issue:
+
+   ```console
+   root@45df6e3bc5da:/app# ./exploit.sh
    ============================================================
     Exercise 07: Hardcoded Secret - Exploit
    ============================================================
@@ -114,11 +147,13 @@ You will also follow the steps after you do the fix (see also the `Your Tasks` s
        It searches for high-entropy strings and known key patterns in all commits.
    ```
 
-1. Test the vulnerability.
-   At this point, it will fail:
+   As you can see, the `exploit.sh` script automates the discovery of the hard-coded value in the program.
+   This is a leak of our secret.
+
+1. Inside the container, use the `verify_fix.sh` script to test the issue:
 
    ```console
-   root@2a4db176d366:/app# ./verify_fix.sh
+   root@45df6e3bc5da:/app# ./verify_fix.sh
    ============================================================
     Exercise 07: Hardcoded Secret - Verify Fix
    ============================================================
@@ -141,10 +176,16 @@ You will also follow the steps after you do the fix (see also the `Your Tasks` s
     Fix is incomplete. Keep trying!
    ```
 
+   As we can see, 2 tests failed.
+   That means the program stores secrets inside the source code.
+   We need to fix the Python program to not store secrets inside the source code and pass all 4 tests.
+   Secrets are to be passed from the outside world, at runtime.
+
 1. Exit (and stop, and remove) the container:
 
    ```console
-   root@45df6e3bc5da:/app# exit
+   root@45df6e3bc5da:/app#
+   exit
    ```
 
    You will get your initial host console.
@@ -153,18 +194,44 @@ You will also follow the steps after you do the fix (see also the `Your Tasks` s
 
 Follow the **Audit → Identify → Validate → Fix → Test** cycle:
 
-1. **Audit** – Read `vuln_code.py`.
+1. **Audit** - Read `vuln_code.py`.
    Understand what it does.
-1. **Identify** – Where is the secret stored, and why is that a problem?
-1. **Validate** – Build the container image.
+1. **Identify** - Where is the secret stored, and why is that a problem?
+1. **Validate** - Build the container image.
    Start the container.
    Inside the container run the `exploit.sh` script to confirm the vulnerability exists.
    Exit the container.
-1. **Fix** – Edit `vuln_code.py` to read the key from an environment variable.
-1. **Test** – Start the container.
+1. **Fix** - Edit `vuln_code.py` to read the key from an environment variable.
+1. **Test** - Start the container.
    Build the container image.
    Inside the container run the `verify_fix.sh` script to confirm the vulnerability is now removed.
    Exit the container.
+
+If everything is OK (and you fixed the program and removed the vulnerability), all 4 tests in the `verify_fix.sh` script will pass:
+
+```console
+root@45df6e3bc5da:/app# ./verify_fix.sh
+============================================================
+ Exercise 07: Hardcoded Secret - Verify Fix
+============================================================
+
+[TEST 1] API key must NOT be hardcoded in the source file...
+  PASS: No hardcoded secret found in source.
+
+[TEST 2] Code must read the key from an environment variable...
+  PASS: Code uses os.getenv() / os.environ.
+
+[TEST 3] Script must run when API_KEY env var is set...
+  PASS: Script runs correctly when API_KEY env var is provided.
+
+[TEST 4] Script must warn or fail when API_KEY is missing...
+  PASS: Script warns when API_KEY is not set.
+
+============================================================
+ Results: 4 passed, 0 failed
+============================================================
+ All tests passed! Great work.
+```
 
 ## Why This Matters
 
@@ -183,14 +250,14 @@ Real-world breaches have happened because API keys were committed to public repo
 ## Hints
 
 <details>
-<summary>Hint 1 – What is the flaw?</summary>
+<summary>Hint 1 - What is the flaw?</summary>
 
 The API key `sk_live_SUPER_SECRET_12345ABCDE` is stored as a Python string literal.
 Anyone who reads the file - a teammate, contractor, or attacker who gained access to the repo — can see and use the key immediately.
 </details>
 
 <details>
-<summary>Hint 2 – How to fix it?</summary>
+<summary>Hint 2 - How to fix it?</summary>
 
 Read the secret from an **environment variable** at runtime:
 
