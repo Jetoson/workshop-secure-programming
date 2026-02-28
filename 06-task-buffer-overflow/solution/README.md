@@ -1,4 +1,4 @@
-# Exercise 06 – Solution: Buffer Overflow
+# Exercise 06 - Solution: Buffer Overflow
 
 ## The Flaw
 
