@@ -82,24 +82,18 @@ You will also follow the steps after you do the fix (see also the `Your Tasks` s
    root@45df6e3bc5da:/app#
    ```
 
-1. Validate the issue using the `exploit.sh` script inside the container:
+1. Run the `vuln_code.py` Python script:
 
    ```console
-   root@2a4db176d366:/app# ./exploit.sh
-   ============================================================
-   Tutorial 01: Command Injection - Exploit
-   ============================================================
+   root@45df6e3bc5da:/app# python vuln_code.py
+   ```
 
+1. Pass to the Python script an exploit payload: `root ; cat /etc/passwd`.
+   This exploit payload is a string that will inject the command `cat /etc/passwd` to the script and cause it to print the contents of the `/etc/passwd` file:
 
-   [*] Normal use - querying about user root:
-   Enter username: [*] Running: id root
-   uid=0(root) gid=0(root) groups=0(root)
-
-   ------------------------------------------------------------
-   [*] Injecting payload: root; cat /etc/passwd
-   [*] The semicolon ends the ping command and starts a new one!
-
-   Enter username: [*] Running: id root; cat /etc/passwd
+   ```console
+   Enter username: root ; cat /etc/passwd
+   [*] Running: id root ; cat /etc/passwd
    uid=0(root) gid=0(root) groups=0(root)
    root:x:0:0:root:/root:/bin/bash
    daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -119,58 +113,136 @@ You will also follow the steps after you do the fix (see also the `Your Tasks` s
    irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
    _apt:x:42:65534::/nonexistent:/usr/sbin/nologin
    nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
-   systemd-network:x:998:998:systemd Network Management:/:/usr/sbin/nologin
-   systemd-timesync:x:996:996:systemd Time Synchronization:/:/usr/sbin/nologin
-   dhcpcd:x:100:65534:DHCP Client Daemon,,,:/usr/lib/dhcpcd:/bin/false
-   messagebus:x:995:995:System Message Bus:/nonexistent:/usr/sbin/nologin
-   syslog:x:101:101::/nonexistent:/usr/sbin/nologin
-   systemd-resolve:x:990:990:systemd Resolver:/:/usr/sbin/nologin
-   tss:x:102:104:TPM software stack,,,:/var/lib/tpm:/bin/false
-   uuidd:x:103:106::/run/uuidd:/usr/sbin/nologin
-   systemd-oom:x:989:989:systemd Userspace OOM Killer:/:/usr/sbin/nologin
-   whoopsie:x:104:109::/nonexistent:/bin/false
-   dnsmasq:x:999:65534:dnsmasq:/var/lib/misc:/usr/sbin/nologin
-   avahi:x:105:111:Avahi mDNS daemon,,,:/run/avahi-daemon:/usr/sbin/nologin
-   nm-openvpn:x:106:112:NetworkManager OpenVPN,,,:/var/lib/openvpn/chroot:/usr/sbin/nologin
-   tcpdump:x:107:113::/nonexistent:/usr/sbin/nologin
-   sssd:x:108:114:SSSD system user,,,:/var/lib/sss:/usr/sbin/nologin
-   speech-dispatcher:x:109:29:Speech Dispatcher,,,:/run/speech-dispatcher:/bin/false
-   usbmux:x:110:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin
-   cups-pk-helper:x:111:115:user for cups-pk-helper service,,,:/nonexistent:/usr/sbin/nologin
-   fwupd-refresh:x:988:988:Firmware update daemon:/var/lib/fwupd:/usr/sbin/nologin
-   saned:x:112:116::/var/lib/saned:/usr/sbin/nologin
-   geoclue:x:113:117::/var/lib/geoclue:/usr/sbin/nologin
-   cups-browsed:x:114:115::/nonexistent:/usr/sbin/nologin
-   hplip:x:115:7:HPLIP system user,,,:/run/hplip:/bin/false
-   gnome-remote-desktop:x:987:987:GNOME Remote Desktop:/var/lib/gnome-remote-desktop:/usr/sbin/nologin
-   polkitd:x:986:986:User for polkitd:/:/usr/sbin/nologin
-   rtkit:x:116:119:RealtimeKit,,,:/proc:/usr/sbin/nologin
-   colord:x:117:120:colord colour management daemon,,,:/var/lib/colord:/usr/sbin/nologin
-   gnome-initial-setup:x:118:65534::/run/gnome-initial-setup/:/bin/false
-   gdm:x:119:121:Gnome Display Manager:/var/lib/gdm3:/bin/false
-   razvan:x:1000:1000:Razvan Deaconescu:/home/razvan:/bin/bash
-   sshd:x:120:65534::/run/sshd:/usr/sbin/nologin
-   postfix:x:121:123:Postfix MTA,,,:/var/spool/postfix:/usr/sbin/nologin
-   snapd-range-524288-root:x:524288:524288::/nonexistent:/usr/bin/false
-   snap_daemon:x:584788:584788::/nonexistent:/usr/bin/false
-   dovecot:x:122:125:Dovecot mail server,,,:/usr/lib/dovecot:/usr/sbin/nologin
-   dovenull:x:123:126:Dovecot login user,,,:/nonexistent:/usr/sbin/nologin
-
-   [!] We just read /etc/passwd by injecting into the ping command!
    ```
 
-1. Test the vulnerability.
-   At this point, it will fail:
+   This is a command injection attack.
+   We are able to abuse an insecure program and cause the `cat /etc/passwd` command to be injected and then run by the vulnerable program.
+
+1. Try another approach.
+   Run the Python script and pass another exploit payload to it: `root && cat /etc/passwd`:
 
    ```console
-   root@2a4db176d366:/app# ./verify_fix.sh
+   root@45df6e3bc5da:/app# python vuln_code.py
+   Enter username: root && cat /etc/passwd
+   [*] Running: id root && cat /etc/passwd
+   uid=0(root) gid=0(root) groups=0(root)
+   root:x:0:0:root:/root:/bin/bash
+   daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+   bin:x:2:2:bin:/bin:/usr/sbin/nologin
+   sys:x:3:3:sys:/dev:/usr/sbin/nologin
+   sync:x:4:65534:sync:/bin:/bin/sync
+   games:x:5:60:games:/usr/games:/usr/sbin/nologin
+   man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+   lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+   mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+   news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+   uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+   proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+   www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+   backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+   list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+   irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+   _apt:x:42:65534::/nonexistent:/usr/sbin/nologin
+   nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+   ```
+
+   Yet again we did a command injection attack and we are able to abuse an insecure program and cause the `cat /etc/passwd` command to be injected and then run by the vulnerable program.
+
+1. Try yet another approach.
+   Run the Python script and pass another exploit payload to it: `root | cat /etc/passwd`:
+
+   ```console
+   root@45df6e3bc5da:/app# python vuln_code.py
+   Enter username: root | cat /etc/passwd
+   [*] Running: id root | cat /etc/passwd
+   root:x:0:0:root:/root:/bin/bash
+   daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+   bin:x:2:2:bin:/bin:/usr/sbin/nologin
+   sys:x:3:3:sys:/dev:/usr/sbin/nologin
+   sync:x:4:65534:sync:/bin:/bin/sync
+   games:x:5:60:games:/usr/games:/usr/sbin/nologin
+   man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+   lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+   mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+   news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+   uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+   proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+   www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+   backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+   list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+   irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+   _apt:x:42:65534::/nonexistent:/usr/sbin/nologin
+   nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+   id: write error: Broken pipe
+   ```
+
+   Yet again we did a command injection attack and we are able to abuse an insecure program and cause the `cat /etc/passwd` command to be injected and then run by the vulnerable program.
+
+   Ignore the `id: write error` message at the end.
+   It's caused by the command `id` writing its output to a pipe that nobody reads from;
+   it doesn't affect our exploit.
+
+Keep the container running for the automation steps below.
+
+## Automate the Validating and Testing of the Vulnerability
+
+To automate the process of validating and testing the vulnerability, we have two scripts to use: `exploit.sh` and `verify_fix.sh`.
+
+1. Inside the container, use the `exploit.sh` script to validate the issue:
+
+   ```console
+   root@45df6e3bc5da:/app# ./exploit.sh
    ============================================================
-   Tutorial 01: Command Injection - Verify Fix
+    Tutorial 01: Command Injection - Exploit
+   ============================================================
+
+
+   [*] Normal use - querying about user root:
+   Enter username: [*] Running: id root
+   uid=0(root) gid=0(root) groups=0(root)
+
+   ------------------------------------------------------------
+   [*] Injecting payload: root ; cat /etc/passwd
+   [*] The semicolon ends the ping command and starts a new one!
+
+   Enter username: [*] Running: id root ; cat /etc/passwd
+   uid=0(root) gid=0(root) groups=0(root)
+   root:x:0:0:root:/root:/bin/bash
+   daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+   bin:x:2:2:bin:/bin:/usr/sbin/nologin
+   sys:x:3:3:sys:/dev:/usr/sbin/nologin
+   sync:x:4:65534:sync:/bin:/bin/sync
+   games:x:5:60:games:/usr/games:/usr/sbin/nologin
+   man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+   lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+   mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+   news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+   uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+   proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+   www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+   backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+   list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+   irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+   _apt:x:42:65534::/nonexistent:/usr/sbin/nologin
+   nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+
+   [!] We just read /etc/passwd by injecting into the id command!
+   ```
+
+   As you can see, the `exploit.sh` script automates the passing the exploit payload (`root ; cat /etc/passwd`).
+   So we inject the `cat /etc/passwd` command to the Python script and cause the contents of the `/etc/passwd` file to be shown.
+
+1. Inside the container, use the `verify_sh.sh` script to test the issue:
+
+   ```console
+   root@45df6e3bc5da:/app# ./verify_fix.sh
+   ============================================================
+    Tutorial 01: Command Injection - Verify Fix
    ============================================================
 
 
    [TEST 1] Normal input should still work...
-     PASS: Normal ping works correctly.
+     PASS: Normal id works correctly.
 
    [TEST 2] Injection payload must NOT execute secondary command...
      FAIL: Injection still works! The fix is incomplete.
@@ -183,6 +255,10 @@ You will also follow the steps after you do the fix (see also the `Your Tasks` s
    ============================================================
     Fix is incomplete. Keep trying!
    ```
+
+   As we can see, two tests failed.
+   That means we were able to inject a command to the vulnerable Python script.
+   We need to fix the script to remove the vulnerability and pass all three tests.
 
 1. Exit (and stop, and remove) the container:
 
@@ -206,8 +282,9 @@ os.system(command)
 ```
 
 `os.system()` passes the string to `/bin/sh -c`, which interprets shell metacharacters.
-An attacker supplying `id ; cat /etc/passwd` causes the shell to run two commands.
-This is because the `;` character is a special character that the shell interprets as concatenating two commands.
+An attacker supplying `id root ; cat /etc/passwd` causes the shell to run two commands.
+Similarly if the attacker supplies `id root && cat /etc/passwd` or `id root | cat /etc/passwd`.
+This is because the `;`, `&&`, `|` constructs have a special role that the shell interprets as joining two commands together.
 
 ### Fix Idea
 
@@ -224,7 +301,7 @@ Because this command calls the shell directly:
 subprocess.run(["id", user])
 ```
 
-By passing a **list** to `subprocess.run()`, Python calls `execvp()` directly — no shell is spawned.
+By passing a **list** to `subprocess.run()`, Python calls `execvp()` directly - no shell is spawned.
 The OS treats every list element as a literal argument.
 Even if `host` contains `;`, `&&`, or backticks, they reach `ping` as data, not shell syntax.
 
@@ -256,4 +333,53 @@ To apply the fix, we do the following:
 
 1. Start the container.
 
+1. Run the manual step of testing the vulnerability.
+   Run the script and pass it different variants of exploit payloads.
+   In case of a successful solution (and removal of the vulnerability), you won't be able to inject commands to the script:
+
+   ```console
+   root@45df6e3bc5da:/app# python vuln_code.py
+   Enter username: root ; cat /etc/passwd
+   [*] Getting information about: root ; cat /etc/passwd
+   [-] No such user.
+
+   root@45df6e3bc5da:/app# python vuln_code.py
+   Enter username: root && cat /etc/passwd
+   [*] Getting information about: root && cat /etc/passwd
+   [-] No such user.
+
+   root@45df6e3bc5da:/app# python vuln_code.py
+   Enter username: root | cat /etc/passwd
+   [*] Getting information about: root | cat /etc/passwd
+   [-] No such user.
+   ```
+
 1. Verify the new file by running the `verify_fix.sh` script inside the container.
+   In case of a successful solution, all 3 tests in the `verify_fix.sh` script will work:
+
+   ```console
+   root@45df6e3bc5da:/app# ./verify_fix.sh
+   ============================================================
+    Tutorial 01: Command Injection - Verify Fix
+   ============================================================
+
+
+   [TEST 1] Normal input should still work...
+     PASS: Normal id works correctly.
+
+   [TEST 2] Injection payload must NOT execute secondary command...
+     PASS: Injection payload was not executed.
+
+   [TEST 3] Another injection vector (&&)...
+     PASS: '&&' injection was blocked.
+
+   ============================================================
+    Results: 3 passed, 0 failed
+   ============================================================
+    All tests passed! Great work.
+   ```
+
+## Related Vulnerabilities
+
+- [CWE-78: Improper Neutralization of Special Elements used in an OS Command](https://cwe.mitre.org/data/definitions/78.html)
+- [OWASP A05:2025 – Injection](https://owasp.org/Top10/2025/A05_2025-Injection/)

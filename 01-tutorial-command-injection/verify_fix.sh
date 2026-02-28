@@ -15,16 +15,16 @@ echo ""
 echo "[TEST 1] Normal input should still work..."
 OUTPUT=$(echo "root" | python3 vuln_code.py 2>&1 || true)
 if echo "$OUTPUT" | grep -qiE "root"; then
-    echo "  PASS: Normal ping works correctly."
+    echo "  PASS: Normal id works correctly."
     PASS=$((PASS+1))
 else
-    echo "  PASS: Ran without crash (ping may not respond in container - that's OK)."
+    echo "  PASS: Ran without crash."
     PASS=$((PASS+1))
 fi
 
 echo ""
 echo "[TEST 2] Injection payload must NOT execute secondary command..."
-OUTPUT=$(echo "root; echo INJECTION_SUCCEEDED" | python3 vuln_code.py 2>&1 || true)
+OUTPUT=$(echo "root ; echo INJECTION_SUCCEEDED" | python3 vuln_code.py 2>&1 || true)
 if echo "$OUTPUT" | grep -q "^INJECTION_SUCCEEDED"; then
     echo "  FAIL: Injection still works! The fix is incomplete."
     FAIL=$((FAIL+1))
@@ -35,8 +35,8 @@ fi
 
 echo ""
 echo "[TEST 3] Another injection vector (&&)..."
-OUTPUT=$(echo "root && ps" | python3 vuln_code.py 2>&1 || true)
-if echo "$OUTPUT" | grep -qE "PID"; then
+OUTPUT=$(echo "root && ls /" | python3 vuln_code.py 2>&1 || true)
+if echo "$OUTPUT" | grep -qE "lib64"; then
     echo "  FAIL: '&&' injection still works!"
     FAIL=$((FAIL+1))
 else
