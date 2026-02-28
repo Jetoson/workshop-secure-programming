@@ -9,7 +9,7 @@ os.system(command)
 ```
 
 `os.system()` passes the string to `/bin/sh -c`, which interprets shell metacharacters.
-An attacker supplying `127.0.0.1; cat /etc/passwd` causes the shell to run two commands.
+An attacker supplying `127.0.0.1 ; cat /etc/passwd` causes the shell to run two commands.
 
 ## The Fix
 
@@ -20,7 +20,7 @@ subprocess.run(["ping", "-c", "1", host])
 
 By passing a **list** to `subprocess.run()`, Python calls `execvp()` directly — no shell is spawned.
 The OS treats every list element as a literal argument.
-Even if `host` contains `;`, `&&`, or backticks, they reach `ping` as data, not shell syntax.
+Even if `host` contains `;`, `&&`, `|` or backticks, they reach `ping` as data, not shell syntax.
 
 ## Key Principle
 
